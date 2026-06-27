@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.ai_service import analyze_workouts, create_routine_from_prompt
 
@@ -22,5 +22,8 @@ async def analyze(body: AnalyzeRequest):
 
 @router.post("/create-routine")
 async def create_routine(body: CreateRoutineRequest):
-    routine = await create_routine_from_prompt(body.prompt, body.exercise_templates)
+    try:
+        routine = await create_routine_from_prompt(body.prompt, body.exercise_templates)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     return routine

@@ -7,7 +7,7 @@ router = APIRouter(prefix="/api/workouts", tags=["workouts"])
 
 
 def get_hevy_client() -> HevyClient:
-    return HevyClient(api_key=settings.hevy_api_key)
+    return HevyClient(api_key=settings.hevy_api_key, base_url=settings.hevy_base_url)
 
 
 @router.get("", response_model=WorkoutsPage)

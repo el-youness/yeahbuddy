@@ -45,4 +45,12 @@ async def create_routine_from_prompt(prompt: str, exercise_templates: list[dict]
             }
         ],
     )
-    return json.loads(message.content[0].text)
+    raw = message.content[0].text.strip()
+    # strip markdown code fences if Claude wraps the JSON
+    if raw.startswith("```"):
+        raw = "\n".join(raw.split("\n")[1:])
+        raw = raw.rsplit("```", 1)[0].strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Claude returned invalid JSON: {e}") from e

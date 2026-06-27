@@ -13,13 +13,18 @@ export function AiCoachPage() {
   const [generatedRoutine, setGeneratedRoutine] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
+  const [error, setError] = useState<string>("");
+
   async function handleAnalyze() {
     setAnalyzing(true);
     setAnalysis("");
+    setError("");
     try {
       const page = await getWorkouts(1, 10);
       const result = await analyzeWorkouts(page.workouts);
       setAnalysis(result.analysis);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setAnalyzing(false);
     }
@@ -29,9 +34,12 @@ export function AiCoachPage() {
     if (!routinePrompt.trim()) return;
     setCreating(true);
     setGeneratedRoutine("");
+    setError("");
     try {
       const routine = await createRoutine(routinePrompt, []);
       setGeneratedRoutine(JSON.stringify(routine, null, 2));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setCreating(false);
     }
@@ -69,6 +77,9 @@ export function AiCoachPage() {
           >
             {analyzing ? "Analyzing..." : "Analyze my workouts"}
           </button>
+          {error && (
+            <p className="mt-3 text-red-400 text-sm">{error}</p>
+          )}
           {analysis && (
             <div className="mt-6 bg-gray-800 rounded-lg p-6 whitespace-pre-wrap text-gray-200 leading-relaxed">
               {analysis}
@@ -95,6 +106,9 @@ export function AiCoachPage() {
           >
             {creating ? "Generating..." : "Generate Routine"}
           </button>
+          {error && (
+            <p className="mt-3 text-red-400 text-sm">{error}</p>
+          )}
           {generatedRoutine && (
             <div className="mt-6 bg-gray-800 rounded-lg p-4 overflow-auto">
               <pre className="text-green-400 text-xs">{generatedRoutine}</pre>

@@ -9,6 +9,7 @@ export function Dashboard() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     Promise.all([getWorkouts(1, 5), getRoutines(1, 5)])
@@ -16,6 +17,7 @@ export function Dashboard() {
         setWorkouts(wp.workouts);
         setRoutines(rp.routines);
       })
+      .catch(() => setError("Could not load data. Check your Hevy API key."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -23,6 +25,7 @@ export function Dashboard() {
 
   return (
     <div>
+      {error && <p className="text-red-400">{error}</p>}
       <h1 className="text-3xl font-bold mb-2">Welcome to {APP_NAME}</h1>
       <p className="text-gray-400 mb-8">Your personal workout command center.</p>
 
